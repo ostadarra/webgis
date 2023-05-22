@@ -20,7 +20,7 @@ services:
     build:
       context: ./docker/php
       dockerfile: Dockerfile
-    image: entidadesgis-php:latest
+    image: webmap-php:latest
     ports:
       - 5173:5173   
     volumes:
@@ -28,7 +28,7 @@ services:
     networks:
       - backend
   postgres:
-    image: postgres:latest
+    image: postgis/postgis:15-3.3
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
