@@ -2,6 +2,7 @@ version: "3.7"
 volumes:
   postgres-data:
   redis-data:
+  geoserver-data:
 networks:
   frontend:
   backend:
@@ -62,3 +63,15 @@ services:
       - ./docker/portainer/portainer-data:/data
     ports:
       - 9000:9000
+  geoserver:
+    image: kartoza/geoserver:latest
+    ports:
+      - 8081:8080
+    volumes:
+      - geoserver-data:/opt/geoserver/data_dir
+    environment:
+      GEOSERVER_DATA_DIR: /opt/geoserver/data_dir
+      GEOSERVER_ADMIN_USER: admin
+      GEOSERVER_ADMIN_PASSWORD: geoserver
+    networks:
+      - backend
