@@ -6,6 +6,15 @@ import {
 import OSM from "ol/source/OSM.js";
 import Overlay from "ol/Overlay.js";
 import TileWMS from 'ol/source/TileWMS.js';
+import VectorSource from "ol/source/Vector.js";
+import VectorLayer from "ol/layer/Vector.js";
+import {
+    Icon,
+    Style,
+} from "ol/style.js";
+import {
+    Draw,
+} from "ol/interaction.js";
 
 document.addEventListener("alpine:init", () => {
     Alpine.data("map", function () {
@@ -13,8 +22,19 @@ document.addEventListener("alpine:init", () => {
             legendOpened: false,
             map: {},
             activeTab: 'legend',
+            monumentsLayer: {},
+            draw: {},
+            source: new VectorSource({}),
+            mode: 'view',
             initComponent() {
-                let monumentsLayer = new TileLayer({
+                this.$watch('activeTab', (value) => {
+                    this.stopDrawMonument()
+                })
+                this.draw = new Draw({
+                    source: this.source,
+                    type: 'Point',
+                });
+                this.monumentsLayer = new TileLayer({
                     source: new TileWMS({
                         url: 'http://localhost:8081/geoserver/wms',
                         params: {
@@ -49,6 +69,17 @@ document.addEventListener("alpine:init", () => {
                     }),
                     label: 'World Rivers',
                 });
+                let drawLayer = new VectorLayer({
+                    source: this.source,
+                    style: new Style({
+                        image: new Icon({
+                            anchor: [0.5, 1],
+                            anchorXUnits: 'fraction',
+                            anchorYUnits: 'fraction',
+                            src: '/img/location-marker.png',
+                        }),
+                    }),
+                })
 
                 this.map = new Map({
                     target: this.$refs.map,
@@ -59,7 +90,8 @@ document.addEventListener("alpine:init", () => {
                         }),
                         worldAdministrativeBoundariesLayer,
                         worldRiversLayer,
-                        monumentsLayer
+                        this.monumentsLayer,
+                        drawLayer,
                     ],
                     view: new View({
                         projection: "EPSG:4326",
@@ -86,7 +118,7 @@ document.addEventListener("alpine:init", () => {
 
                     const viewResolution = /** @type {number} */ (event.map.getView().getResolution())
 
-                    const url = monumentsLayer.getSource().getFeatureInfoUrl(
+                    const url = this.monumentsLayer.getSource().getFeatureInfoUrl(
                         event.coordinate,
                         viewResolution,
                         'EPSG:4326', {
@@ -111,6 +143,7 @@ document.addEventListener("alpine:init", () => {
                 this.$refs.popupContent.innerHTML = ''
             },
             gotoMonument(jsonFeature) {
+                this.stopDrawMonument()
                 this.map.getView().animate({
                     center: jsonFeature.geometry.coordinates,
                     zoom: 15,
@@ -121,13 +154,16 @@ document.addEventListener("alpine:init", () => {
                     '<h4 class="text-gray-500 font-bold">' +
                     jsonFeature.properties.name +
                     '</h4>'
-
+                let image = jsonFeature.properties.image || '/img/placeholder-image.png'
                 content +=
                     '<img src="' +
-                    jsonFeature.properties.image +
+                    image +
                     '" class="mt-2 w-full max-h-[200px] rounded-md shadow-md object-contain overflow-clip">'
 
                 this.$refs.popupContent.innerHTML = content
+                this.monumentsLayer.getSource().updateParams({
+                    'TIMESTAMP': Date.now()
+                })
 
                 setTimeout(() => {
                     this.map.getOverlayById('info').setPosition(
@@ -147,6 +183,29 @@ document.addEventListener("alpine:init", () => {
                             LEGEND_OPTIONS: 'forceLabels:on'
                         })
                 }
+            },
+            startDrawMonument() {
+                this.mode = "draw"
+                this.draw.on("drawend", (e) => {
+                    this.source.clear();
+                });
+                this.source.on("change", (e) => {
+                    const features = this.source.getFeatures()
+                    if (features.length === 1) {
+                        const coordinates = features[0].getGeometry().getCoordinates()
+                        this.$wire.set('coordinates', coordinates)
+                        this.map.getView().animate({
+                            center: coordinates,
+                            duration: 500,
+                        });
+                    }
+                });
+                this.map.addInteraction(this.draw);
+            },
+            stopDrawMonument() {
+                this.source.clear();
+                this.map.removeInteraction(this.draw);
+                this.mode = "view";
             }
         };
     });
