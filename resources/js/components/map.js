@@ -211,7 +211,30 @@ document.addEventListener("alpine:init", () => {
                 this.source.clear();
                 this.map.removeInteraction(this.draw);
                 this.mode = "view";
-            }
+            },
+            gotoCurrentLocation() {
+                // We first make sure the browser supports geolocation
+                if ("geolocation" in navigator) {
+                    // geolocation is available
+                    this.getPosition()
+                        .then((position) => {
+                            this.map.getView().animate({
+                                center: [position.coords.longitude, position.coords.latitude],
+                                zoom: 16,
+                                duration: 1000,
+                            });
+                        })
+                }
+            },
+            getPosition(options = {
+                maximumAge: 0,
+                timeout: 5000,
+                enableHighAccuracy: true
+            }) {
+                return new Promise((resolve, reject) =>
+                    navigator.geolocation.getCurrentPosition(resolve, reject, options)
+                );
+            }               
         };
     });
 });
