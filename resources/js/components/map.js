@@ -95,8 +95,10 @@ document.addEventListener("alpine:init", () => {
                     ],
                     view: new View({
                         projection: "EPSG:4326",
-                        center: [-78.2161, -0.7022],
-                        zoom: 8,
+//                      center: [-78.2161, -0.7022],
+                        // Aulesti
+                        center: [-2.5628, 43.2964],
+                        zoom: 15,
                     }),
                     overlays: [
                         new Overlay({
