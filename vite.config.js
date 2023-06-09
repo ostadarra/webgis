@@ -7,8 +7,10 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/css/components/map.css',
+                'resources/css/components/filepond.css',
                 'resources/js/app.js',
                 'resources/js/components/map.js',
+                'resources/js/components/filepond.js',
             ],
             refresh: [
                 ...refreshPaths,

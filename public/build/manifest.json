@@ -1,8 +1,13 @@
 {
   "resources/css/app.css": {
-    "file": "assets/app-2ac212fb.css",
+    "file": "assets/app-290ce6d3.css",
     "isEntry": true,
     "src": "resources/css/app.css"
+  },
+  "resources/css/components/filepond.css": {
+    "file": "assets/filepond-1725412a.css",
+    "isEntry": true,
+    "src": "resources/css/components/filepond.css"
   },
   "resources/css/components/map.css": {
     "file": "assets/map-b1a8005b.css",
@@ -14,8 +19,20 @@
     "isEntry": true,
     "src": "resources/js/app.js"
   },
+  "resources/js/components/filepond.css": {
+    "file": "assets/filepond-51cbea9b.css",
+    "src": "resources/js/components/filepond.css"
+  },
+  "resources/js/components/filepond.js": {
+    "css": [
+      "assets/filepond-51cbea9b.css"
+    ],
+    "file": "assets/filepond-ea4e9a31.js",
+    "isEntry": true,
+    "src": "resources/js/components/filepond.js"
+  },
   "resources/js/components/map.js": {
-    "file": "assets/map-2463b9b0.js",
+    "file": "assets/map-bde955b1.js",
     "isEntry": true,
     "src": "resources/js/components/map.js"
   }
